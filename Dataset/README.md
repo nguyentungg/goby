@@ -1,3 +1,3 @@
 ## Create Two folders name ##
-- `/Input` : Where we place the test images
-- `/Output` : Where the recognition inages will place to (by system).
+- `/Crop` : Where the croped image will saved in (by system).
+- `/Raw` : Where we put the training image.
