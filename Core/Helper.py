@@ -3,6 +3,7 @@ import cv2
 from zipfile import ZipFile
 import gdown
 import os
+from utils import Detector
 
 def crop_image(source_dir, dest_dir, mode=1): # mode = 1 means 1 face per image
     if os.path.isdir(dest_dir) == False:
@@ -83,3 +84,7 @@ def get_pretrain_model():
         print('weights extracted Done!')
 
     os.remove(output_file)
+
+def export_model():
+    detector = Detector()
+    detector.save_model()

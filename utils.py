@@ -154,3 +154,6 @@ class Detector():
         font_thickness = round(width/400)
         box_thickness = round(width/300)
         return offset, font_size, font_thickness, box_thickness
+
+    def save_model(self, path=None):
+        self.FaceRecog.export_model(path)

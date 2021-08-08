@@ -46,8 +46,7 @@ def main():
     print("\t d - Detect the image.")
     print("\t e - Exit.")
     print("\t ------------------ADD-ON-------------------")
-    print("\t s - Save the pretrain model.")
-    print("\t x - Export trained model.")
+    print("\t x - Export pre-trained model.")
 
     choice = input("\t What would you like to do? ")
     if choice == "r":
@@ -61,6 +60,8 @@ def main():
         excute()
     elif choice == "e":
         return
+    elif choice == "x":
+        help.export_model()
 
 
 if __name__ == '__main__':
