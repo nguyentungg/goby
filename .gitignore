@@ -1,6 +1,7 @@
 .gitignore
 .idea/
 .vscode/
+.
 __pycache__/
 Model/
 temp_test.py

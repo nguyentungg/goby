@@ -1,5 +1,6 @@
 import Core.Helper as hp
 from utils import Detector
+from deepface import DeepFace
 # source_dir = r'input' # directory with files to crop
 # dest_dir = r'output' # directory where cropped images get stored
 #
@@ -7,9 +8,10 @@ from utils import Detector
 # if len(uncropped_files_list) > 0:
 #     for f in uncropped_files_list:
 #         print(f)
-detector = Detector()
+
 choice = input("\t What would you like to do? ")
 if choice == "s":
-    detector.save_model()
+    obj = DeepFace.analyze(img_path = "Testing/Input/tung.jpg", actions = ['age', 'gender', 'race', 'emotion'])
+    print(obj)
 elif choice == "c":
     pass

@@ -1,9 +1,12 @@
-import flask
-from train_data import training_model
-import Core.Helper as help
-from utils import Detector
-from flask import request, jsonify, redirect
+from flask import flask, request, Response
 from flask_cors import CORS, cross_origin
+from train_data import training_model
+from utils import Detector
+import Core.Helper as help
+import jsonpickle
+import numpy as np
+import cv2
+
 
 app = flask.Flask(__name__)
 cors = CORS(app)
@@ -50,6 +53,45 @@ def detect_face():
         img_pre = help.image_preprocessing(img)
         predictions = detector.get_people_names(img_pre, speed_up=False, downscale_by=1)
         return jsonify(predictions)
+
+
+# route http posts to this method
+@app.route('/api/v1/ai/detection', methods=['POST'])
+@cross_origin()
+def detect_face_v1():
+    if request.method != 'POST':
+        return 'Accept only POST method'
+    r = request
+    # convert string of image data to uint8
+    nparr = np.fromstring(r.data, np.uint8)
+    # decode image
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    # convert color
+    img_pre = help.image_preprocessing(img)
+     # detect face
+    predictions = detector.get_people_names(img_pre, speed_up=False, downscale_by=1)
+    # encode response using jsonpickle
+    response_pickled = jsonpickle.encode(predictions)
+
+    return Response(response=response_pickled, status=200, mimetype="application/json")
+
+# route http posts to this method
+@app.route('/api/v2/ai/detection', methods=['POST'])
+@cross_origin()
+def detect_face_v2():
+    if request.method != 'POST':
+        return 'Accept only POST method'
+    r = request
+    # decode image
+    img = r.data
+    # convert color
+    img_pre = help.image_preprocessing(img)
+     # detect face
+    predictions = detector.get_people_names(img_pre, speed_up=False, downscale_by=1)
+    # encode response using jsonpickle
+    response_pickled = jsonpickle.encode(predictions)
+
+    return Response(response=response_pickled, status=200, mimetype="application/json")
 
 
 if __name__ == '__main__':
