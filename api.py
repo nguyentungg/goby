@@ -6,6 +6,7 @@ import Core.Helper as help
 import jsonpickle
 import numpy as np
 import cv2
+import base64
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -43,19 +44,8 @@ def training_model():
     return 'Training Completed!', 200
 
 
-# @app.route('/api/v1/ai/detection', methods=['POST'])
-# @cross_origin()
-# def detect_face():
-#     if request.method == 'POST':
-#         detector = Detector()
-#         img = request.url #Read real image not image path
-#         img_pre = help.image_preprocessing(img)
-#         predictions = detector.get_people_names(img_pre, speed_up=False, downscale_by=1)
-#         return jsonify(predictions)
-
-
-# route http posts to this method
-@app.route('/api/v1/ai/detection', methods=['POST'])
+# route http posts to this method from bytes image data
+@app.route('/api/v1/ai/detection_v1', methods=['POST'])
 @cross_origin()
 def detect_face_v1():
     if request.method != 'POST':
@@ -72,6 +62,29 @@ def detect_face_v1():
     # # detect face
     response = detector.get_people_only_names(img, speed_up=False, downscale_by=1)
 
+    # encode response using jsonpickle
+    response_pickled = jsonpickle.encode(response)
+
+    return Response(response=response_pickled, status=200, mimetype="application/json")
+
+# route http posts to this method from base64 string image data
+@app.route('/api/v1/ai/detection_v2', methods=['POST'])
+@cross_origin()
+def detect_face_v2():
+    if request.method != 'POST':
+        return 'Accept only POST method'
+    r = request
+    # convert string of image data to uint8
+    jpg_original = base64.b64decode(r.data)
+    jpg_as_np = np.frombuffer(jpg_original, dtype=np.uint8)
+    # decode image
+    img = cv2.imdecode(jpg_as_np, flags=1)
+    # convert image color to COLOR_BGR2RGB
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    # create detector object
+    detector = Detector()
+    # # detect face
+    response = detector.get_people_only_names(img, speed_up=False, downscale_by=1)
     # encode response using jsonpickle
     response_pickled = jsonpickle.encode(response)
 

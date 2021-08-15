@@ -2,6 +2,7 @@ from __future__ import print_function
 import requests
 import json
 import cv2
+import base64
 
 addr = 'http://192.168.0.108:5000/'
 test_url = addr + '/api/v1/ai/detection'
@@ -24,7 +25,12 @@ def post_image_v2(img_file):
     img = open(img_file, 'rb').read()
     response = requests.post(test_url, data=img, headers=headers)
     print(response.text)
-    # return response
+
+def post_image_v3(img_file):
+    img = open(img_file, 'rb').read()
+    image_data = base64.b64encode(img).decode()
+    response = requests.post(test_url, data=image_data, headers=headers)
+    print(response.text)
 
 # post_image_v1(file_name)
-post_image_v2(file_name)
+post_image_v3(file_name)
