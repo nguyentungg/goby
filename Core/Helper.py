@@ -4,6 +4,7 @@ from zipfile import ZipFile
 import gdown
 import os
 from utils import Detector
+from datetime import datetime
 
 def crop_image(source_dir, dest_dir, mode=1): # mode = 1 means 1 face per image
     if os.path.isdir(dest_dir) == False:
@@ -88,3 +89,20 @@ def get_pretrain_model():
 def export_model():
     detector = Detector()
     detector.save_model()
+
+def markAttendance(name, csv_path, is_record=False):
+    if csv_path is None or name is None:
+        return False
+    with open(csv_path, 'r+') as file:
+        myDataList = file.readline()
+        nameList = []
+        attend_time = None
+        for line in myDataList:
+            entry = line.split(',')
+            nameList.append(entry[0])
+        if name not in nameList:
+            now = datetime.now()
+            attend_time = now.strftime('%d/%m/%y %H:%M:%S')
+            if is_record:
+                file.writelines(f'\n{name},{attend_time}')
+        return attend_time

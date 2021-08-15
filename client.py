@@ -3,16 +3,15 @@ import requests
 import json
 import cv2
 
-addr = 'http://localhost:5555'
-test_url = addr + '/api/test'
-
+addr = 'http://192.168.0.108:5000/'
+test_url = addr + '/api/v1/ai/detection'
+content_type = 'image/jpeg'
+headers = {'content-type': content_type}
+file_name = 'Testing/Input/tung.jpg'
 # /api/v1/ai/detection
-def post_image_v1():
+def post_image_v1(img_file):
     # prepare headers for http request
-    content_type = 'image/jpeg'
-    headers = {'content-type': content_type}
-
-    img = cv2.imread('mona.jpg')
+    img = cv2.imread(img_file)
     # encode image as jpeg
     _, img_encoded = cv2.imencode('.jpg', img)
     # send http request with image and receive response
@@ -23,5 +22,9 @@ def post_image_v1():
 # /api/v2/ai/detection
 def post_image_v2(img_file):
     img = open(img_file, 'rb').read()
-    response = requests.post(URL, data=img, headers=headers)
-    return response
+    response = requests.post(test_url, data=img, headers=headers)
+    print(response.text)
+    # return response
+
+# post_image_v1(file_name)
+post_image_v2(file_name)

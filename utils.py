@@ -1,5 +1,6 @@
 from Core.FaceDetector import FaceDetector
 from Core.FaceRecognizer import FaceRecognizer
+from datetime import datetime
 from sklearn.svm import SVC
 import numpy as np
 import joblib
@@ -88,6 +89,41 @@ class Detector():
             person_name, distance = self.FaceRecog.Whoisit(face_embd)
             results.append((distance, person_name, box))
         
+        return results
+
+    def get_people_only_names(self, image, speed_up=True, downscale_by=4):
+        """
+		Arguments:
+        image - numpy array of image
+        speed_up - bool whether to downscale image or not
+        downscale_by - bigger the number faster the reults but lower accuracy
+		Output:
+        results - a lsit with following format
+        [(distance, person_name, the time of verification),
+        (distance, person_name, the time of verification), .........]
+
+        box_co-ordinates = [xmin, ymin, xmax, ymax]
+
+		"""
+        # get bounding boxes for faces
+        face_bboxes = self.FaceDetect.detect_faces(image, speed_up=speed_up,
+                                        scale_factor=downscale_by)
+        # get face crops according to the bounding boxes
+        Face_crops = self.FaceDetect.crop_faces(image, face_bboxes)
+
+        # store the results in tuple format in list
+        results = []
+        for face_crop, box in zip(Face_crops, face_bboxes):
+            # get face embedding
+            face_embd = self.FaceRecog.get_face_embedding(face_crop)
+            # get person_name and distance
+            person_name, distance = self.FaceRecog.Whoisit(face_embd)
+            # get the time of verification
+            now = datetime.now()
+            attend_time = now.strftime('%d/%m/%y %H:%M:%S')
+
+            results.append((person_name, attend_time, distance))
+
         return results
 
     def draw_results(self, image, infer_results, 
