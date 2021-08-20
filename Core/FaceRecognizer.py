@@ -19,7 +19,9 @@ class FaceRecognizer():
         # get current directory
         self.cwdir = os.path.curdir
         # Set base directory for converted weights
-        self.WEIGHT_BASE = os.path.join('Model','model_weights')
+        self.WEIGHT_BASE = os.path.join('Model')
+        if os.path.exists(os.path.join('Model', 'model_weights')):
+            self.WEIGHT_BASE = os.path.join('Model', 'model_weights')
         # Check if keras saved weights exists load from them if exists
         # if any error then load from the extracted weights
         try:

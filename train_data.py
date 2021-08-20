@@ -44,7 +44,7 @@ def classifier(images_folder, recognizer):
         except IndexError as e:
             print(f"\r Error: Cannot encode image:\n")
 
-def training_model(processed_dir, model_path):
+def training_model(processed_dir, model_path="DataBase"):
     check_model(model_path)
     recognizer = FaceRecognizer()
     classifier(processed_dir, recognizer)

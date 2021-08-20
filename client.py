@@ -35,5 +35,12 @@ def post_image_v3(img_file):
     response = requests.post(api_url, data=image_data, headers=headers)
     print(response.text)
 
+def train_model():
+    api_url = addr + '/api/v1/ai/train'
+    response = requests.post(api_url, data='', headers=headers)
+    print(response.text)
+
 # post_image_v1(file_name)
-post_image_v3(file_name)
+# post_image_v3(file_name)
+
+train_model()
