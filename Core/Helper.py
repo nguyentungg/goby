@@ -106,3 +106,54 @@ def markAttendance(name, csv_path, is_record=False):
             if is_record:
                 file.writelines(f'\n{name},{attend_time}')
         return attend_time
+
+# Use this function to detecting a list of image
+def detectImages(images_dir, detector):
+    # create detector object
+    if detector.get_status() is False:
+        detector = Detector()
+        print("Ultis is loaded")
+
+    list_imgs = os.listdir(images_dir)
+    # loop over images
+    for im in list_imgs:
+        # read image
+        img = cv2.imread(os.path.join(images_dir, im))
+        # resize image
+        # img = cv2.resize(img, (0, 0), None, 0.5, 0.5)
+        # convert to RGB
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        # get predictions and draw them on image
+        predictions = detector.get_people_names(img, speed_up=False, downscale_by=1)
+        annoted_image = detector.draw_results(img, predictions)
+
+        # convert back to BGR (since using cv2)
+        image = cv2.cvtColor(annoted_image, cv2.COLOR_RGB2BGR)
+        # Save image and show the annoted iamge
+        cv2.imwrite(f"Testing/Output\\{im.split('.')[0]}_infered.png", image)
+        cv2.imshow("image", image)
+        cv2.waitKey(3)
+
+def detectCamera(detector, camera_number=0):
+    if detector.get_status() is False:
+        detector = Detector()
+        print("Ultis is loaded")
+
+    cap = cv2.VideoCapture(camera_number)
+    while True:
+        success, img = cap.read()
+
+        # convert to RGB
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        # get predictions and draw them on image
+        predictions = detector.get_people_names(img, speed_up=False, downscale_by=1)
+        annoted_image = detector.draw_results(img, predictions, (255, 238, 0))
+
+        # convert back to BGR (since using cv2)
+        image = cv2.cvtColor(annoted_image, cv2.COLOR_RGB2BGR)
+
+        cv2.imshow('Webcam', image)
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
