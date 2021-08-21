@@ -21,12 +21,14 @@ ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg']
 HAS_MODEL = False
 detector = None
 
-def init():
+
+def __init__():
     global HAS_MODEL
     global detector
     if os.path.isfile('./DataBase/DataBase.json'):
         detector = Detector()
         HAS_MODEL = True
+
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -60,6 +62,7 @@ def train():
     training_model('Dataset/Crop', 'DataBase')
     return 'Training Completed!', 200
 
+
 # Crop face image and training data
 @app.route('/api/v1/ai/crop-train', methods=['POST'])
 @cross_origin()
@@ -67,6 +70,7 @@ def crop_train():
     help.crop_image('Dataset/Raw', 'Dataset/Crop')
     training_model('Dataset/Crop', 'DataBase')
     return 'Training Completed!', 200
+
 
 @app.route('/api/v1/ai/detection', methods=['POST'])
 @cross_origin()
@@ -89,6 +93,7 @@ def detection():
     response_pickled = jsonpickle.encode(response)
     # print(response_pickled, file=sys.stderr)
     return Response(response=response_pickled, status=200, mimetype="application/json")
+
 
 # ------------------------- Test function -------------------------
 # Route http posts to this method from bytes image data
@@ -114,6 +119,7 @@ def detect_face_v1():
 
     return Response(response=response_pickled, status=200, mimetype="application/json")
 
+
 # route http posts to this method from base64 string image data
 @app.route('/api/v1/ai/detection_v2', methods=['POST'])
 @cross_origin()
@@ -137,7 +143,8 @@ def detect_face_v2():
 
     return Response(response=response_pickled, status=200, mimetype="application/json")
 
-init()
+
+__init__()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

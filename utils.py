@@ -7,9 +7,11 @@ import cv2
 
 
 class Detector():
-    def __init__(self):
-        self.FaceDetect = FaceDetector()
-        self.FaceRecog = FaceRecognizer()
+
+    def __init__(self, load=False):
+        if load is False:
+            self.FaceDetect = FaceDetector()
+            self.FaceRecog = FaceRecognizer()
 
     def get_people_names_svc(self, Model_dir, decode_json_dir, image, speed_up=True, downscale_by=4):
         """
@@ -188,5 +190,6 @@ class Detector():
         box_thickness = round(width / 300)
         return offset, font_size, font_thickness, box_thickness
 
+    # Save pretain model from weights
     def save_model(self, path=None):
         self.FaceRecog.export_model(path)
