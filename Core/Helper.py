@@ -6,15 +6,13 @@ import os
 from utils import Detector
 from datetime import datetime
 
-def crop_image(source_dir, dest_dir, mode=1): # mode = 1 means 1 face per image
-    if os.path.isdir(dest_dir) == False:
-        os.mkdir(dest_dir)
-    detector = MTCNN()
 
-    print("[INFO] quantifying faces...")
+def crop_images(source_dir, dest_dir, detector):
+    if detector.get_status() is False:
+        detector = Detector()
+        print("Ultis is loaded")
+    print("[INFO] Cropping faces...")
     employee_folder = os.listdir(source_dir)
-
-    uncropped_file_list = []
     for employee in employee_folder:
         employee_path = os.path.join(source_dir, employee)
         if os.path.isfile(employee_path):
@@ -28,43 +26,16 @@ def crop_image(source_dir, dest_dir, mode=1): # mode = 1 means 1 face per image
 
         # Start to crop images
         for file in source_list:
+            # create file path
             f_path = os.path.join(employee_path, file)
+            # create image save path
             dest_path = os.path.join(employee_dest, file)
-
+            print(f'{f_path} => {dest_path}')
+            # Read file
             img = cv2.imread(f_path)
-            data = detector.detect_faces(img)
-            if data == []:
-                uncropped_file_list.append(f_path)
-            else:
-                if mode == 1:  # Detect the box with the largest area
-                    for i, faces in enumerate(data):  # Iterate through all the faces found
-                        box = faces['box']  # Get the box for each face
-                        biggest = 0
-                        area = box[3] * box[2]
-                        if area > biggest:
-                            biggest = area
-                            bbox = box
-                    bbox[0] = 0 if bbox[0] < 0 else bbox[0]
-                    bbox[1] = 0 if bbox[1] < 0 else bbox[1]
-                    img = img[bbox[1]: bbox[1] + bbox[3], bbox[0]: bbox[0] + bbox[2]]
-                    cv2.imwrite(dest_path, img)
-                    print(f'Saved: {dest_path}')
-                else:
-                    for i, faces in enumerate(data):  # Iterate through all the faces found
-                        box = faces['box']
-                        if box != []:
-                            # Return all faces found in the image
-                            box[0] = 0 if box[0] < 0 else box[0]
-                            box[1] = 0 if box[1] < 0 else box[1]
-                            cropped_img = img[box[1]: box[1] + box[3], box[0]: box[0] + box[2]]
-                            fname = os.path.splitext(file)[0]
-                            fext = os.path.splitext(file)[1]
-                            fname = fname + str(i) + fext
-                            save_path = os.path.join(employee_dest, fname)
-                            cv2.imwrite(save_path, cropped_img)
-                            print(f'Saved: {save_path}')
+            # Crop face and write to a image
+            detector.crop_image(img, dest_path)
 
-    return uncropped_file_list
 
 def image_preprocessing(image_path):
     # read image
@@ -106,3 +77,59 @@ def markAttendance(name, csv_path, is_record=False):
             if is_record:
                 file.writelines(f'\n{name},{attend_time}')
         return attend_time
+
+# Use this function to detecting a list of image
+def detectImages(images_dir, detector):
+    # create detector object
+    if detector.get_status() is False:
+        detector = Detector()
+        print("Ultis is loaded")
+
+    list_imgs = os.listdir(images_dir)
+    # loop over images
+    for im in list_imgs:
+        # read image
+        img = cv2.imread(os.path.join(images_dir, im))
+
+        # resize image
+        # img = cv2.resize(img, (0, 0), None, 0.5, 0.5)
+
+        # convert to RGB
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        # get predictions and draw them on image
+        predictions = detector.get_people_names(img, speed_up=False, downscale_by=1)
+        annoted_image = detector.draw_results(img, predictions)
+
+        # convert back to BGR (since using cv2)
+        image = cv2.cvtColor(annoted_image, cv2.COLOR_RGB2BGR)
+        # Save image and show the annoted iamge
+        cv2.imwrite(f"Testing/Output\\{im.split('.')[0]}_infered.png", image)
+        cv2.imshow("image", image)
+        # Show the image one by one
+        cv2.waitKey(3)
+        # Wait for key press to show the next image
+        # cv2.waitKey(0)
+
+def detectCamera(detector, camera_number=0):
+    if detector.get_status() is False:
+        detector = Detector()
+        print("Ultis is loaded")
+
+    cap = cv2.VideoCapture(camera_number)
+    while True:
+        success, img = cap.read()
+
+        # convert to RGB
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        # get predictions and draw them on image
+        predictions = detector.get_people_names(img, speed_up=False, downscale_by=1)
+        annoted_image = detector.draw_results(img, predictions, (255, 238, 0))
+
+        # convert back to BGR (since using cv2)
+        image = cv2.cvtColor(annoted_image, cv2.COLOR_RGB2BGR)
+
+        cv2.imshow('Webcam', image)
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
