@@ -204,3 +204,28 @@ class Detector():
             - False: mean FaceDetect and FaceRecog wasn't load
         """
         return self.Status
+
+    def crop_image(self, image, save_dir, speed_up=True, downscale_by=4):
+        """
+        Output:
+            Detecting, croping face and write to a image file.
+        """
+        # convert to RGB (blue image)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # get bounding boxes for faces
+        face_bboxes = self.FaceDetect.detect_faces(image, speed_up=speed_up,
+                                                   scale_factor=downscale_by)
+        # get face crops according to the bounding boxes
+        Face_crops = self.FaceDetect.crop_faces(image, face_bboxes)
+
+        for face_crop, box in zip(Face_crops, face_bboxes):
+            # convert back to BGR (since using cv2)
+            face_crop = cv2.cvtColor(face_crop, cv2.COLOR_RGB2BGR)
+            cv2.imwrite(save_dir, face_crop)
+
+    def is_face(self, image, speed_up=True, downscale_by=4):
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        result = self.FaceDetect.detect_faces(image, speed_up=speed_up,
+                                                   scale_factor=downscale_by)
+        return result
+
