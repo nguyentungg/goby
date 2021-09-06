@@ -1,7 +1,7 @@
 import os
 from flask import Flask, request, Response
 from flask_cors import CORS, cross_origin
-from train_data import training_model
+import train_data as td
 from utils import Detector
 import Core.Helper as help
 import jsonpickle
@@ -18,16 +18,12 @@ app.config["DEBUG"] = True
 
 UPLOAD_FOLDER = 'received_files'
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg']
-HAS_MODEL = False
-detector = None
-
-
-def __init__():
-    global HAS_MODEL
-    global detector
-    if os.path.isfile('./DataBase/DataBase.json'):
-        detector = Detector()
-        HAS_MODEL = True
+# create detector object
+if not td.check_database('./DataBase/DataBase.json'):
+    detector = Detector(False)
+    detector.load_detect()
+else:
+    detector = Detector()
 
 
 def allowed_file(filename):
@@ -52,23 +48,22 @@ def page_not_found(e):
 @app.route('/api/v1/ai/crop-image', methods=['POST'])
 @cross_origin()
 def crop():
-    help.crop_image('Dataset/Raw', 'Dataset/Crop')
+    help.crop_images('./Dataset/Raw', './Dataset/Crop', detector)
     return 'Face Crop completed!', 200
 
 
 @app.route('/api/v1/ai/train', methods=['POST'])
 @cross_origin()
 def train():
-    training_model('Dataset/Crop', 'DataBase')
+    td.training_model('./Dataset/Crop')
     return 'Training Completed!', 200
-
 
 # Crop face image and training data
 @app.route('/api/v1/ai/crop-train', methods=['POST'])
 @cross_origin()
 def crop_train():
-    help.crop_image('Dataset/Raw', 'Dataset/Crop')
-    training_model('Dataset/Crop', 'DataBase')
+    help.crop_images('./Dataset/Raw', './Dataset/Crop', detector)
+    td.training_model('./Dataset/Crop')
     return 'Training Completed!', 200
 
 
@@ -77,9 +72,14 @@ def crop_train():
 def detection():
     if request.method != 'POST':
         return 'Accept only POST method'
-    if HAS_MODEL is False:
-        print("There are no Database model", file=sys.stderr)
-        return 'Please import the Database model'
+    if detector.recog_isload is False:
+        if os.path.isfile('./DataBase/DataBase.json'):
+            detector.load_recog()
+            print("FaceRecog is loaded", file=sys.stderr)
+        else:
+            print("There is no Database model", file=sys.stderr)
+            return 'Please import the Database model'
+
     r = request
     image_data = re.sub('^data:image/.+;base64,', '', r.form['photo'])
     jpg_original = base64.b64decode(image_data)
@@ -143,8 +143,6 @@ def detect_face_v2():
 
     return Response(response=response_pickled, status=200, mimetype="application/json")
 
-
-__init__()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

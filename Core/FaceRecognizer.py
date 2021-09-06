@@ -4,7 +4,8 @@ import tensorflow as tf
 import numpy as np
 import json
 import os
-import cv2 
+import cv2
+import sys
 
 class FaceRecognizer():
     def __init__(self, database_path=None):
@@ -29,9 +30,12 @@ class FaceRecognizer():
             self.model = tf.keras.models.load_model(model_path)
         except:
             self.model = self.load_model()
-        # Load DataBase
+
         if database_path==None:
             database_path = os.path.join(self.cwdir, 'DataBase', 'DataBase.json')
+            print('[Error] DataBase.json model does not exits', file=sys.stderr)
+       
+        # Load DataBase
         with open(database_path, "r") as file:
             self.database = json.load(file)
     

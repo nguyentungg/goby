@@ -7,7 +7,7 @@ import train_data as train
 import face_recognition
 
 # create detector object
-detector = Detector(True)
+detector = Detector(False)
 
 
 def init():
@@ -37,11 +37,9 @@ def remove_junk_images(source_dir, detector):
             result_facerecog = face_recognition.face_locations(img)
             print(f'{result} -- {result_facerecog}')
 
-
-
 def main():
     init()
-    path = 'dataset'
+
     print("\t**********************************************")
     print("\t***  Market Enterprise Vietnam AI Lab  ***")
     print("\t**********************************************")
@@ -59,11 +57,10 @@ def main():
     if choice == "r":
         help.get_pretrain_model()
     elif choice == "c":
-        help.crop_images('Dataset/Raw', 'Dataset/Crop')
+        help.crop_images('Dataset/Raw', 'Dataset/Crop', detector)
         # remove_junk_images('Dataset/Crop', detector)
     elif choice == "t":
-        files = os.listdir("DataBase")
-        train.training_model('Dataset/Crop', files)
+        train.training_model('Dataset/Crop')
     elif choice == "d":
         help.detectImages("Testing/Input", detector)
     elif choice == "v":
