@@ -9,10 +9,13 @@ from datetime import datetime
 
 def crop_images(source_dir, dest_dir, detector):
     if detector.get_status() is False:
-        detector = Detector()
-        print("Ultis is loaded")
+        detector = Detector(False)
+        detector.load_detect()
+        print("Ultis Detect is loaded")
     print("[INFO] Cropping faces...")
     employee_folder = os.listdir(source_dir)
+    if '.DS_Store' in employee_folder:
+        employee_folder.remove('.DS_Store')
     for employee in employee_folder:
         employee_path = os.path.join(source_dir, employee)
         if os.path.isfile(employee_path):
@@ -23,7 +26,8 @@ def crop_images(source_dir, dest_dir, detector):
             os.mkdir(employee_dest)
 
         source_list = os.listdir(employee_path)
-
+        if '.DS_Store' in source_list:
+            source_list.remove('.DS_Store')
         # Start to crop images
         for file in source_list:
             # create file path
@@ -82,7 +86,7 @@ def markAttendance(name, csv_path, is_record=False):
 def detectImages(images_dir, detector):
     # create detector object
     if detector.get_status() is False:
-        detector = Detector()
+        detector = Detector(True)
         print("Ultis is loaded")
 
     list_imgs = os.listdir(images_dir)
@@ -113,7 +117,7 @@ def detectImages(images_dir, detector):
 
 def detectCamera(detector, camera_number=0):
     if detector.get_status() is False:
-        detector = Detector()
+        detector = Detector(True)
         print("Ultis is loaded")
 
     cap = cv2.VideoCapture(camera_number)

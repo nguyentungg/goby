@@ -1,14 +1,10 @@
+import sys
+
 from Core.FaceRecognizer import FaceRecognizer
 from imutils import paths
 import cv2
 import json
 import os
-
-def check_model(files):
-    if "DataBase.json" not in files:
-        with open(os.path.join("DataBase", "DataBase.json"), "x") as file:
-            empty_json = {}
-            json.dump(empty_json, file)
 
 
 def add_person_to_database(Name, feature_vector):
@@ -44,7 +40,26 @@ def classifier(images_folder, recognizer):
         except IndexError as e:
             print(f"\r Error: Cannot encode image:\n")
 
-def training_model(processed_dir, model_path="DataBase"):
-    check_model(model_path)
+
+def init_database():
+    data_path = os.path.join(os.path.curdir, 'DataBase', 'DataBase.json')
+    if os.path.isfile(data_path):
+        print('[NOTE] DataBase.json is exits', file=sys.stderr)
+        return
+    with open(data_path, 'w') as f:
+        empty_json = {}
+        json.dump(empty_json, f)
+        print('[NOTE] DataBase.json created', file=sys.stderr)
+
+
+def check_database(data_path):
+    if os.path.isfile(data_path):
+        return True
+    return False
+
+
+def training_model(processed_dir, model_path='./DataBase/DataBase.json'):
+    if not check_database(model_path):
+        init_database()
     recognizer = FaceRecognizer()
     classifier(processed_dir, recognizer)

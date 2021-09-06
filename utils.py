@@ -8,12 +8,19 @@ import cv2
 
 class Detector():
 
-    def __init__(self, load=False):
-        self.Status = False
-        if load is False:
-            self.Status = True
+    def __init__(self, load=True):
+        self.load = load
+        self.FaceDetect = None
+        self.FaceRecog = None
+        if self.load is True:
             self.FaceDetect = FaceDetector()
             self.FaceRecog = FaceRecognizer()
+
+    def load_detect(self):
+        self.FaceDetect = FaceDetector()
+
+    def load_recog(self):
+        self.FaceRecog = FaceRecognizer()
 
     def get_people_names_svc(self, Model_dir, decode_json_dir, image, speed_up=True, downscale_by=4):
         """
@@ -166,7 +173,8 @@ class Detector():
                                 color=color, thickness=box_thickness)
             # generate text to put over box
             text = "{} {:.2f}".format(name, dist)
-            # put the text on image 
+            # put the text on image
+
             img = cv2.putText(img, text, (x1, y1 - offset),
                               cv2.FONT_HERSHEY_SIMPLEX, font_size,
                               color, font_thickness, cv2.LINE_AA)
@@ -203,7 +211,16 @@ class Detector():
             - True: mean FaceDetect and FaceRecog is loaded
             - False: mean FaceDetect and FaceRecog wasn't load
         """
-        return self.Status
+        return self.load
+
+    def recog_isload(self):
+        """
+        Output:
+            Return the status of this utils when init two objects FaceRecog and FaceDetection
+            - True: mean FaceRecog is loaded
+            - False: mean FaceRecog wasn't loaded
+        """
+        return False if self.FaceRecog is None else True
 
     def crop_image(self, image, save_dir, speed_up=True, downscale_by=4):
         """
