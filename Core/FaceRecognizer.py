@@ -145,7 +145,7 @@ class FaceRecognizer():
         euclidian distance between the two embeddings
 
 		"""
-        return distance.euclidean(embd_real, embd_candidate)
+        return distance. euclidean(embd_real, embd_candidate)
     
     # Function whch compare predicted embedding face with embedding in database
     # and return result with least distance as a person name

@@ -45,17 +45,20 @@ def main():
     print("\t**********************************************")
     print("\t Press the keyboard to use the feature    ")
     print("\t r - Download the weight.")
+    print("\t s - Capture the image.")
     print("\t c - Crop images in the raw dataset.")
     print("\t t - Training the model.")
     print("\t d - Detect the image.")
     print("\t v - Detect by the camera.")
-    print("\t e - Exit.")
+    print("\t q - Exit.")
     print("\t ------------------ADD-ON-------------------")
     print("\t x - Export pre-trained model.")
 
-    choice = input("\t What would you like to do? ")
+    choice = input("\t What would you like to do: ")
     if choice == "r":
         help.get_pretrain_model()
+    elif choice == "s":
+        help.takeImage('Dataset/Raw/NguyenTung')
     elif choice == "c":
         help.crop_images('Dataset/Raw', 'Dataset/Crop', detector)
         # remove_junk_images('Dataset/Crop', detector)
@@ -65,7 +68,7 @@ def main():
         help.detectImages("Testing/Input", detector)
     elif choice == "v":
         help.detectCamera(detector)
-    elif choice == "e":
+    elif choice == "q":
         return
     elif choice == "x":
         help.export_model()

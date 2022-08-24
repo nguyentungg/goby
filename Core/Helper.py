@@ -19,7 +19,7 @@ def crop_images(source_dir, dest_dir, detector):
     for employee in employee_folder:
         employee_path = os.path.join(source_dir, employee)
         if os.path.isfile(employee_path):
-            return
+            continue
 
         employee_dest = os.path.join(dest_dir, employee)
         if os.path.isdir(employee_dest) == False:
@@ -30,6 +30,9 @@ def crop_images(source_dir, dest_dir, detector):
             source_list.remove('.DS_Store')
         # Start to crop images
         for file in source_list:
+            if not file.lower().endswith(('.png', '.jpg', '.jpeg')):
+                print(f'Ignore file: {file}')
+                continue
             # create file path
             f_path = os.path.join(employee_path, file)
             # create image save path
@@ -137,3 +140,25 @@ def detectCamera(detector, camera_number=0):
         cv2.imshow('Webcam', image)
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
+
+def takeImage(destination_path):
+    video = cv2.VideoCapture(0)
+    total = 0
+    while True:
+        ret, frame = video.read()
+
+        cv2.imshow("video", frame)
+        key = cv2.waitKey(1) & 0xFF
+
+        if key == ord("k"):
+            p = os.path.sep.join(
+                [destination_path, "{}.png".format(str(total).zfill(5))])  # điền thêm số 0 bên trái cho đủ 5 kí tự
+            cv2.imwrite(p, frame)
+            total += 1
+        # nhấn q để thoát
+        elif key == ord("q"):
+            break
+
+    print("[INFO] {} face images stored".format(total))
+    video.release()
+    cv2.destroyAllWindows()

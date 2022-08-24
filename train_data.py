@@ -46,6 +46,8 @@ def init_database():
     if os.path.isfile(data_path):
         print('[NOTE] DataBase.json is exits', file=sys.stderr)
         return
+    if not os.path.isdir('DataBase'):
+        os.makedirs('DataBase')
     with open(data_path, 'w') as f:
         empty_json = {}
         json.dump(empty_json, f)

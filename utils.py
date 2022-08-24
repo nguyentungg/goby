@@ -234,7 +234,6 @@ class Detector():
                                                    scale_factor=downscale_by)
         # get face crops according to the bounding boxes
         Face_crops = self.FaceDetect.crop_faces(image, face_bboxes)
-
         for face_crop, box in zip(Face_crops, face_bboxes):
             # convert back to BGR (since using cv2)
             face_crop = cv2.cvtColor(face_crop, cv2.COLOR_RGB2BGR)
